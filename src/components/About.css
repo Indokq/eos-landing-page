@@ -1,0 +1,129 @@
+.about {
+  padding: 8rem 2rem;
+  background: #ffffff;
+  position: relative;
+  overflow: hidden;
+}
+
+.about::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at center, rgba(96, 165, 250, 0.1) 0%, transparent 70%);
+  animation: rotate 30s linear infinite;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.about-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.about-label {
+  color: #60a5fa;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+}
+
+.about-title {
+  font-size: clamp(2rem, 6vw, 4rem);
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0 0 1rem;
+  line-height: 1.3;
+  letter-spacing: 0.1em;
+  perspective: 1000px;
+}
+
+.about-title .letter {
+  display: inline-block;
+  transform-origin: center bottom;
+}
+
+.about-japanese {
+  font-size: clamp(1.5rem, 4vw, 3rem);
+  color: rgba(30, 41, 59, 0.3);
+  font-weight: 300;
+  margin-bottom: 3rem;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+.about-content {
+  display: grid;
+  gap: 2rem;
+  margin: 3rem 0;
+}
+
+.about-text {
+  font-size: 1.125rem;
+  line-height: 1.8;
+  color: rgba(30, 41, 59, 0.7);
+  max-width: 900px;
+}
+
+.about-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+  margin-top: 4rem;
+  padding-top: 4rem;
+  border-top: 1px solid rgba(30, 41, 59, 0.1);
+}
+
+.stat-item {
+  text-align: center;
+  padding: 2rem;
+  background: rgba(59, 130, 246, 0.05);
+  border: 1px solid rgba(30, 41, 59, 0.1);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.3);
+  transform: translateY(-10px);
+}
+
+.stat-number {
+  font-size: 3rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 1rem;
+  color: rgba(30, 41, 59, 0.6);
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .about {
+    padding: 4rem 1.5rem;
+  }
+  
+  .about-stats {
+    grid-template-columns: 1fr;
+  }
+}
