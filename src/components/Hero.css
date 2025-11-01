@@ -40,6 +40,17 @@
   backdrop-filter: blur(10px);
 }
 
+/* 3D Transform Wrappers */
+.hero-title-wrapper,
+.hero-subtitle-wrapper {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
 .hero-title {
   font-size: clamp(2rem, 6vw, 3.5rem);
   font-weight: 800;
@@ -47,10 +58,60 @@
   margin: 0 0 1.5rem;
   line-height: 1.3;
   letter-spacing: -0.01em;
-  text-shadow: none;
+  text-shadow: 
+    0 2px 8px rgba(255, 255, 255, 0.8),
+    0 4px 16px rgba(255, 255, 255, 0.6),
+    0 0 40px rgba(240, 249, 255, 0.9);
   max-width: 900px;
-  margin-left: auto;
-  margin-right: auto;
+  text-align: center;
+  display: block;
+}
+
+/* Character Line Wrapper - for multi-line text */
+.char-line-wrapper {
+  display: block;
+  text-align: center;
+  width: 100%;
+}
+
+/* Character Word Wrapper - prevents mid-word line breaks */
+.char-word-wrapper {
+  display: inline-block;
+  white-space: nowrap;
+  text-align: left;
+}
+
+/* Split Text Characters */
+.hero-title .char {
+  display: inline-block;
+  opacity: 0;
+  transform-origin: 50% 100%;
+  will-change: transform, opacity;
+  user-select: none; /* Prevent text selection highlighting */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  pointer-events: none; /* Prevent hover/click interactions */
+  filter: drop-shadow(0 2px 4px rgba(255, 255, 255, 0.8));
+}
+
+/* Space between words */
+.char-space {
+  display: inline-block;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Word Elements */
+.word {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+/* Word Masking for Subtitle */
+.word-mask {
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: top;
 }
 
 .hero-subtitle {
@@ -59,6 +120,15 @@
   margin-bottom: 3rem;
   font-weight: 400;
   text-shadow: none;
+}
+
+
+
+/* Scramble Text */
+.scramble-text {
+  font-variant-ligatures: none;
+  font-kerning: none;
+  text-rendering: optimizeSpeed;
 }
 
 .hero-benefits-pills {
@@ -84,6 +154,9 @@
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
   white-space: nowrap;
+  perspective: 1000px;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
 }
 
 .benefit-pill:hover {
@@ -91,6 +164,17 @@
   border-color: rgba(59, 130, 246, 0.4);
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(96, 165, 250, 0.3);
+}
+
+/* Pill Masking for Reveal Animation */
+.pill-mask {
+  overflow: hidden;
+  display: inline-block;
+}
+
+.pill-mask span {
+  display: inline-block;
+  will-change: transform;
 }
 
 
@@ -113,6 +197,9 @@
   cursor: pointer;
   border: none;
   display: inline-block;
+  will-change: transform, box-shadow;
+  overflow: hidden;
+  position: relative;
 }
 
 .cta-button.primary {
@@ -174,6 +261,24 @@
 }
 
 
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .hero-title .char,
+  .text-3d,
+  .benefit-pill,
+  .pill-mask span,
+  .cta-button {
+    animation: none !important;
+    transition: none !important;
+    will-change: auto !important;
+  }
+  
+  .hero-title .char {
+    opacity: 1;
+    transform: none;
+  }
+}
 
 /* Responsive */
 @media (max-width: 968px) {
