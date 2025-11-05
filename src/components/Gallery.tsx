@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { splitTextToLetters } from '../utils/textSplit';
-import { createScrollBatch, createParallax } from '../utils/gsapAdvanced';
+import { createScrollBatch } from '../utils/gsapAdvanced';
 import { createFlipBackEffect, createUnblurEffect } from '../utils/scrollUpAnimations';
 import './Gallery.css';
 
@@ -11,8 +11,10 @@ gsap.registerPlugin(ScrollTrigger);
 export const Gallery = () => {
   const titleRef = useRef<HTMLHeadingElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
+  const fullpageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Title letter animation
     if (titleRef.current) {
       const letters = titleRef.current.querySelectorAll('.letter');
       gsap.fromTo(
@@ -32,55 +34,123 @@ export const Gallery = () => {
       );
     }
 
-    // Advanced ScrollTrigger.batch for coordinated animations
-    createScrollBatch('.gallery-card', {
-      interval: 0.1,
-      batchMax: 4,
-      onEnter: (batch) => {
-        gsap.fromTo(batch, 
-          { 
-            opacity: 0, 
-            y: 100,
-            scale: 0.8,
-            rotationX: -15
-          },
-          {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            rotationX: 0,
-            stagger: {
-              each: 0.15,
-              from: 'start',
-              ease: 'back.out(1.4)'
+    // Desktop: Full-page scroll hijacking
+    ScrollTrigger.matchMedia({
+      "(min-width: 768px)": function() {
+        const fullpageContainer = fullpageRef.current;
+        if (!fullpageContainer) return;
+
+        const cards = gsap.utils.toArray<HTMLElement>('.gallery-card-wrapper');
+        if (cards.length === 0) return;
+
+        // Create timeline for card transitions
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: fullpageContainer,
+            start: 'top top',
+            end: () => `+=${cards.length * 100}%`,
+            pin: true,
+            scrub: 1,
+            snap: {
+              snapTo: cards.map((_, i) => i / (cards.length - 1)),
+              duration: { min: 0.2, max: 0.5 },
+              delay: 0.1,
+              ease: 'power1.inOut',
             },
-            duration: 1.2,
-            ease: 'power3.out',
-            clearProps: 'all'
+            anticipatePin: 1,
+          },
+        });
+
+        // Set initial states for all cards
+        gsap.set(cards, { autoAlpha: 0 }); // All cards hidden initially
+        gsap.set(cards[0], { autoAlpha: 1 }); // First card visible
+
+        // Animate each card transition (matches example pattern)
+        cards.forEach((card, index) => {
+          if (index > 0) {
+            const previousCard = cards[index - 1];
+
+            // Timeline position: ensure equal spacing (1 unit per card transition)
+            const position = index - 1;
+
+            // Current card fades in
+            tl.to(
+              card,
+              {
+                autoAlpha: 1,
+                duration: 0.3,
+              },
+              position
+            );
+
+            // Previous card fades out (simultaneously with "<")
+            tl.to(
+              previousCard,
+              {
+                autoAlpha: 0,
+                duration: 0.3,
+              },
+              "<" // Start at same time as previous animation
+            );
           }
-        );
+        });
       },
-      onLeave: (batch) => {
-        gsap.to(batch, { opacity: 0.5, scale: 0.95, duration: 0.3 });
+
+      // Mobile: Normal scroll with batch animations
+      "(max-width: 767px)": function() {
+        const gridContainer = gridRef.current;
+        if (!gridContainer) return;
+
+        // Batch animations for mobile grid
+        createScrollBatch('.gallery-card', {
+          interval: 0.1,
+          batchMax: 4,
+          onEnter: (batch) => {
+            gsap.fromTo(
+              batch,
+              {
+                opacity: 0,
+                y: 100,
+                scale: 0.8,
+                rotationX: -15,
+              },
+              {
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                rotationX: 0,
+                stagger: {
+                  each: 0.15,
+                  from: 'start',
+                  ease: 'back.out(1.4)',
+                },
+                duration: 1.2,
+                ease: 'power3.out',
+                clearProps: 'all',
+              }
+            );
+          },
+          onLeave: (batch) => {
+            gsap.to(batch, { opacity: 0.5, scale: 0.95, duration: 0.3 });
+          },
+          onEnterBack: (batch) => {
+            gsap.to(batch, { opacity: 1, scale: 1, duration: 0.3 });
+          },
+        });
+
+        // Flip-back effect when scrolling up
+        createFlipBackEffect('.gallery-card', '.gallery', '59, 130, 246');
+
+        // Unblur effect for title when scrolling up
+        createUnblurEffect('.gallery-header h2', '.gallery', 5);
       },
-      onEnterBack: (batch) => {
-        gsap.to(batch, { opacity: 1, scale: 1, duration: 0.3 });
-      }
     });
-
-    // Parallax effect on scroll
-    createParallax('.gallery-card', -15, '.gallery');
-
-    // Flip-back effect when scrolling up
-    createFlipBackEffect('.gallery-card', '.gallery', '59, 130, 246');
-
-    // Unblur effect for title when scrolling up
-    createUnblurEffect('.gallery-header h2', '.gallery', 5);
 
     return () => {
       ScrollTrigger.getAll().forEach((trigger) => {
-        const triggerEl = trigger.vars.trigger;
-        if (triggerEl === '.gallery' || (typeof triggerEl === 'string' && triggerEl.includes('.gallery'))) {
+        if (trigger.vars.trigger === fullpageRef.current ||
+            trigger.vars.trigger === '.gallery-card-wrapper' ||
+            (typeof trigger.vars.trigger === 'string' && trigger.vars.trigger.includes('.gallery'))) {
           trigger.kill();
         }
       });
@@ -89,6 +159,34 @@ export const Gallery = () => {
 
   const title = "P o r t o f o l i o   S o l u s i";
   const titleLetters = splitTextToLetters(title);
+
+  // Portfolio cards data
+  const portfolioCards = [
+    {
+      title: 'MRP & Scheduler',
+      description: 'Advanced Production Planning & Scheduling System untuk optimasi proses manufaktur',
+      image: '/asstes/mrp.jpg',
+      tags: ['MRP', 'APS', 'Scheduler'],
+    },
+    {
+      title: 'ERP System',
+      description: 'Integrated Business Management solution untuk mengelola seluruh aspek operasional',
+      image: '/asstes/erp.jpg',
+      tags: ['ERP', 'Integration', 'Management'],
+    },
+    {
+      title: 'Ceisa 4.0',
+      description: 'Host-to-Host integration dengan sistem kepabeanan untuk PIB, PEB, TPB',
+      image: '/asstes/ceisia.jpg',
+      tags: ['Ceisa', 'Customs'],
+    },
+    {
+      title: 'Bea Cukai',
+      description: 'Sistem manajemen Kawasan Berikat, KITE, dan KEK compliance',
+      image: '/asstes/cukai.jpg',
+      tags: ['Customs', 'Compliance'],
+    },
+  ];
 
   return (
     <section className="gallery" id="portfolio">
@@ -107,72 +205,50 @@ export const Gallery = () => {
           </p>
         </div>
 
+        {/* Desktop: Full-page scroll hijacking */}
+        <div ref={fullpageRef} className="gallery-cards-fullpage">
+          {portfolioCards.map((card, index) => (
+            <div key={index} className="gallery-card-wrapper">
+              <div className="gallery-card">
+                <div className="card-image">
+                  <img src={card.image} alt={card.title} loading="lazy" />
+                </div>
+                <div className="card-content">
+                  <h3 className="card-title">{card.title}</h3>
+                  <p className="card-description">{card.description}</p>
+                  <div className="card-tags">
+                    {card.tags.map((tag, tagIndex) => (
+                      <span key={tagIndex} className="tag">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Mobile: Grid layout with normal scroll */}
         <div ref={gridRef} className="gallery-grid">
-          <div className="gallery-card large">
-            <div className="card-image">
-              <img src="/asstes/mrp.jpg" alt="MRP & Scheduler System" loading="lazy" />
-            </div>
-            <div className="card-content">
-              <h3 className="card-title">MRP & Scheduler</h3>
-              <p className="card-description">
-                Advanced Production Planning & Scheduling System untuk optimasi proses manufaktur
-              </p>
-              <div className="card-tags">
-                <span className="tag">MRP</span>
-                <span className="tag">APS</span>
-                <span className="tag">Scheduler</span>
+          {portfolioCards.map((card, index) => (
+            <div key={index} className={`gallery-card ${index < 2 ? 'large' : ''}`}>
+              <div className="card-image">
+                <img src={card.image} alt={card.title} loading="lazy" />
+              </div>
+              <div className="card-content">
+                <h3 className="card-title">{card.title}</h3>
+                <p className="card-description">{card.description}</p>
+                <div className="card-tags">
+                  {card.tags.map((tag, tagIndex) => (
+                    <span key={tagIndex} className="tag">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-
-          <div className="gallery-card large">
-            <div className="card-image">
-              <img src="/asstes/erp.jpg" alt="ERP Solution" loading="lazy" />
-            </div>
-            <div className="card-content">
-              <h3 className="card-title">ERP System</h3>
-              <p className="card-description">
-                Integrated Business Management solution untuk mengelola seluruh aspek operasional
-              </p>
-              <div className="card-tags">
-                <span className="tag">ERP</span>
-                <span className="tag">Integration</span>
-                <span className="tag">Management</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="gallery-card">
-            <div className="card-image">
-              <img src="/asstes/ceisia.jpg" alt="Ceisa 4.0 Integration" loading="lazy" />
-            </div>
-            <div className="card-content">
-              <h3 className="card-title">Ceisa 4.0</h3>
-              <p className="card-description">
-                Host-to-Host integration dengan sistem kepabeanan untuk PIB, PEB, TPB
-              </p>
-              <div className="card-tags">
-                <span className="tag">Ceisa</span>
-                <span className="tag">Customs</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="gallery-card">
-            <div className="card-image">
-              <img src="/asstes/cukai.jpg" alt="Customs & Excise System" loading="lazy" />
-            </div>
-            <div className="card-content">
-              <h3 className="card-title">Bea Cukai</h3>
-              <p className="card-description">
-                Sistem manajemen Kawasan Berikat, KITE, dan KEK compliance
-              </p>
-              <div className="card-tags">
-                <span className="tag">Customs</span>
-                <span className="tag">Compliance</span>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </section>

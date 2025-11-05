@@ -20,7 +20,7 @@ export const splitTextIntoChars = (element: HTMLElement, className = 'char'): HT
     const lines = originalHTML.split(/<br\s*\/?>/i);
     element.innerHTML = '';
     
-    lines.forEach((lineHTML, lineIndex) => {
+    lines.forEach((lineHTML) => {
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = lineHTML;
       const lineText = tempDiv.textContent || '';
@@ -118,7 +118,6 @@ export const splitTextAdvanced = (
 ) => {
   const {
     types = ['words', 'chars'],
-    lineClass = 'line',
     wordClass = 'word',
     charClass = 'char'
   } = options;

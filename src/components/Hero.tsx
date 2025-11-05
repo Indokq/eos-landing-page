@@ -9,7 +9,6 @@ import {
   splitTextAdvanced,
   scrambleTextAdvanced,
   createMaskReveal,
-  createWaveScrollEffect,
   wrapInMask,
   prefersReducedMotion 
 } from '../utils/textAnimations';
@@ -87,12 +86,26 @@ export const Hero = () => {
 
     // TITLE: KEYFRAME CHARACTER ANIMATION (Nested Timeline)
     if (titleRef.current) {
-      const titleChars = splitTextIntoChars(titleRef.current, 'char');
-      
       const titleTimeline = gsap.timeline();
       
+      // Process each line separately
+      const line1 = titleRef.current.querySelector('.title-line-1');
+      const line2 = titleRef.current.querySelector('.title-line-2');
+      
+      let allChars: HTMLElement[] = [];
+      
+      if (line1 instanceof HTMLElement) {
+        const line1Chars = splitTextIntoChars(line1, 'char');
+        allChars = [...allChars, ...line1Chars];
+      }
+      
+      if (line2 instanceof HTMLElement) {
+        const line2Chars = splitTextIntoChars(line2, 'char');
+        allChars = [...allChars, ...line2Chars];
+      }
+      
       // Use gsap.set for better performance
-      gsap.set(titleChars, {
+      gsap.set(allChars, {
         opacity: 0,
         y: 100,
         rotation: () => gsap.utils.random(-10, 10),
@@ -102,7 +115,7 @@ export const Hero = () => {
       });
 
       // Advanced keyframe animation with overshoot
-      titleTimeline.to(titleChars, {
+      titleTimeline.to(allChars, {
         keyframes: {
           y: [100, -20, 10, 0],           // Overshoot and settle
           rotation: [-10, 5, -2, 0],       // Natural swing
@@ -119,16 +132,6 @@ export const Hero = () => {
       });
 
       masterTimeline.add(titleTimeline, 'title');
-
-      // Add scroll-triggered wave effect
-      if (heroRef.current) {
-        createWaveScrollEffect(titleChars, {
-          triggerElement: heroRef.current,
-          start: 'top center',
-          end: 'bottom top',
-          scrub: 0.5
-        });
-      }
 
       // Add unblur effect on scroll
       createUnblurEffect('.hero-title', '.hero', 6);
@@ -289,7 +292,8 @@ export const Hero = () => {
         
         <div className="hero-title-wrapper">
           <h1 ref={titleRef} className="hero-title">
-            Solusi ERP yang cerdas dan<br />hemat biaya
+            <span className="title-line-1">Solusi ERP yang cerdas dan</span>
+            <span className="title-line-2">hemat biaya</span>
           </h1>
         </div>
 

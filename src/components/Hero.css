@@ -67,11 +67,27 @@
   display: block;
 }
 
+/* Title line elements */
+.title-line-1,
+.title-line-2 {
+  display: block;
+  text-align: center;
+}
+
+.title-line-1 {
+  margin-bottom: 0.3rem;
+}
+
 /* Character Line Wrapper - for multi-line text */
 .char-line-wrapper {
   display: block;
   text-align: center;
   width: 100%;
+  margin-bottom: 0.3rem;
+}
+
+.char-line-wrapper:last-child {
+  margin-bottom: 0;
 }
 
 /* Character Word Wrapper - prevents mid-word line breaks */
