@@ -10,7 +10,7 @@ export const FloatingMetallicObjects = (_props: SceneProps) => {
   // Generate objects in spherical distribution surrounding the text
   const objectConfigs: FloatingObject[] = useMemo(() => {
     const objects: FloatingObject[] = [];
-    const objectCount = 60;
+    const objectCount = 30;
     const minRadius = 3;   // Inner shell radius (very close to text)
     const maxRadius = 7;   // Outer shell radius (tight cluster)
     
@@ -46,7 +46,7 @@ export const FloatingMetallicObjects = (_props: SceneProps) => {
           Math.random() * Math.PI,
           Math.random() * Math.PI
         ],
-        scale: 0.5 + Math.random() * 0.8, // Random size 0.5-1.3
+        scale: 0.3 + Math.random() * 0.5, // Random size 0.3-0.8
         material: materials[Math.floor(Math.random() * materials.length)],
         animationSpeed: { 
           x: 0.1 + Math.random() * 0.3,
