@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { RoundedBox } from '@react-three/drei';
 import type { FloatingObject, SceneProps, GeometryType, MaterialConfig } from './types';
 
-export const FloatingMetallicObjects = ({ mousePosition }: SceneProps) => {
+export const FloatingMetallicObjects = (_props: SceneProps) => {
   const objectRefs = useRef<(THREE.Mesh | THREE.Group | null)[]>([]);
 
   // Generate objects in spherical distribution surrounding the text

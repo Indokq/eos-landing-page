@@ -9,7 +9,7 @@ export const EOSBackground3D = ({ mousePosition }: SceneProps) => {
   const starsRef = useRef<THREE.Points>(null);
 
   // Create star cloud with Perlin noise
-  const { starsGeometry, starsMaterial, starTexture } = useMemo(() => {
+  const { starsGeometry, starsMaterial } = useMemo(() => {
     // Create star sprite texture
     const canvas = document.createElement('canvas');
     canvas.width = 128;
@@ -97,7 +97,7 @@ export const EOSBackground3D = ({ mousePosition }: SceneProps) => {
       depthWrite: false,
     });
 
-    return { starsGeometry: geometry, starsMaterial: material, starTexture: texture };
+    return { starsGeometry: geometry, starsMaterial: material };
   }, []);
 
   useFrame((state) => {

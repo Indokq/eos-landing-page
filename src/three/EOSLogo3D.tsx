@@ -1,6 +1,5 @@
 import { useMemo, Suspense } from 'react';
 import { useLoader } from '@react-three/fiber';
-import * as THREE from 'three';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 import type { SceneProps } from './types';
@@ -44,7 +43,7 @@ const EOSText = () => {
   );
 };
 
-export const EOSLogo3D = ({ mousePosition }: SceneProps) => {
+export const EOSLogo3D = (_props: SceneProps) => {
   return (
     <group position={[0, 0, 0]}>
       {/* Main EOS Text with TextGeometry */}
